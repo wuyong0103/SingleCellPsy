@@ -50,8 +50,12 @@ done
 
 #Add subtype information to meta data
 perl -e 'my %id; open EX, $ARGV[0] or die; my $fl=<EX>; while(<EX>){chomp; my @a=split(/\t/, $_); $id{$a[0]}="EX_".$a[14];}close EX; open IN, $ARGV[1] or die; my $fl=<IN>; while(<IN>){chomp; my @a=split(/\t/, $_); $id{$a[0]}="In_".$a[14];}close IN; open GL, $ARGV[2] or die; my $fl=<GL>; while(<GL>){chomp; my @a=split(/\t/, $_); $id{$a[0]}=$a[15];}close GL; open MI, $ARGV[3] or die; my $fl=<MI>; while(<MI>){chomp; my @a=split(/\t/, $_); $id{$a[0]}="Micro";}close MI; open PE, $ARGV[4] or die; my $fl=<PE>; while(<PE>){chomp; my @a=split(/\t/, $_); $id{$a[0]}="Peri";}close PE; open VA, $ARGV[5] or die; my $fl=<VA>; while(<VA>){chomp; my @a=split(/\t/, $_); $id{$a[0]}="Vasc";}close VA; open ME, $ARGV[6] or die; my $fl=<ME>; chomp($fl); print "$fl\tsub_lineage\n"; while(<ME>){chomp; my @a=split(/\t/, $_); if(exists $id{$a[0]}){print "$_\t$id{$a[0]}\n";}else{print "$_\tNA\n";}}close ME;' ./Excitatory/meta.tsv Interneuron/meta.tsv Glia/meta.tsv Microglia/meta.tsv Pericyte/meta.tsv Vascular/meta.tsv meta.tsv | cut -f 1,6,7,8,13,15,16 | sed -e 's/0-1 years/years0_1/' -e 's/10-20 years/years10_20/' -e 's/1-2 years/years1_2/' -e 's/2-4 years/years2_4/' -e 's/2nd trimester/trimester2nd/' -e 's/3rd trimester/trimester3rd/' -e 's/4-10 years/years4_10/' -e '1s/age(days)/age_days/' >meta_subtype.tsv
+cut -f 6,7 meta_subtype.tsv | sort -u >right_meta.txt
+#Edit the right_meta.txt, remove false cell type annotation
+perl -e 'my %id; open IN, $ARGV[0] or die; while(<IN>){chomp; my @a=split(/\t/, $_); $id{$a[0]}{$a[1]}=0;}close IN; open IN, $ARGV[1] or die; while(<IN>){chomp; my @a=split(/\t/, $_); if(exists $id{$a[5]}{$a[6]}){print "$_\n";}}close IN;' right_meta.txt meta_subtype.tsv >meta_subtype_right.tsv
 
 #Calculate the mean expression of each cell type
+#The following script should be run in a server with memory larger than 800G
 python3 Calculate_MeanExpression.py /home/lilab/wuyong/project/scRNA/data/Velmeshev2023Science/
 for i in `find ./Mean*csv`; do sed -i -e '1s/\-/_/g' -e '1s/^/Gene/' ${i}; done
 
