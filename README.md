@@ -10,6 +10,7 @@ For detalis, please refer to Run.sh
 Prepare the GWAS data using LDSC and MAGMA script
 
 ### Prepare the scRNA-seq data
+### We conducted the analysis according to the publication of Bryois et al., 2020, Nat Genet. (https://github.com/jbryois/scRNA_disease/tree/master)
 1. Calculate the mean expression of each cell type using script Calculate_MeanExpression.py
 2. Calculate the cell type specificity of each cell type using script Calculate_CTD.R
 
