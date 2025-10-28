@@ -130,8 +130,7 @@ do
 done
 
 cd /home/lilab/wuyong/project/scRNA/integrate/downsample500
-#for i in AD2022Bellenguez ADHD2023Demontis ASD2019Grove BD2025OConnel EatingDisorder2019Watson Insomina2022Watanabe HoardingSymptoms2022Strom MDD2025PGC OCD2025Storm SCZ2022PGC3 Suicide2023Docherty TouretteSyndrome2019Yu MDD2025ZCY
-for i in BD2025OConnel SCZ2022PGC3 MDD2025ZCY
+for i in BD2025OConnel SCZ2022PGC3
 do
     bash get_partitioned_h2_tissue_v2.sh /home/lilab/wuyong/data/GWAS/${i}/${i}.sumstats.gz
 done
