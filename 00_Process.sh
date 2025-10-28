@@ -31,10 +31,10 @@ Rscript 02_ExNeu.R
 Rscript 03_InNeu.R
 
 #Downsample
-04_Downsample.R
+Rscript 04_Downsample.R
 
 #Create EWCE object
-05_EwceCtd.R
+Rscript 05_EwceCtd.R
 
 cd /home/lilab/wuyong/project/scRNA/data
 cat Bakken2021Nature/meta_Bakken2021.txt Batiuk2022SciAdv/meta_Batiuk2022.txt Caglayan2023Nature/meta_Caglayan2023.txt Cameron2023BioPsy/meta_Cameron2023.txt Clarence2025NatGenet/meta_Clarence2025.txt Emani2024Science/meta_Emani2024.txt Emani2024Science/meta_Ma2022.txt Fan2020SciAdv/meta_Fan2020.txt Gerstner2025SciAdv/meta_Gerstner2025.txt Huuki-Myers2024Science/meta_Huuki-Myers2024.txt Hwang2025Nature/meta_Hwang2025.txt Jorstad2023Science/meta_Jorstad2023.txt Maitra2023NatCommun/meta_Maitra2023.txt Mannens2024Nature/meta_Mannens2024.txt Morabito2021NatNeu/meta_Morabito2021.txt Pfisterer2020NC/meta_Pfisterer2020.txt Pineda2024Cell/meta_Pineda2024.txt Polioudakis2019Neuron/meta_Polioudakis2019.txt Schirmer2019Nature/meta_Schirmer2019.txt Smith2021PNAS/meta_Smith2021_8m.txt Smith2021PNAS/meta_Smith2021_pcw22.txt Steyn2024NatGenet/meta_Steyn2024.txt Tran2021Neuron/meta_Tran2021.txt Velmeshev2023Science/meta_Velmeshev2023.txt Wang2025Nature/meta_Wang2025.txt Zhu2023SciAdv/meta_Zhu2023.txt | awk 'NR==1 || $1!="barcode"' > ../integrate/meta_AllStudy.txt
@@ -186,6 +186,6 @@ sed -i 's/_/./g' ../type.txt
 bash 06_SCENIC.sh
 
 #Figures
-Rscrit 07_Figure-LDSC-MAGMA.R
-Rscrit 08_Figure-EWCE.R
+Rscript 07_Figure-LDSC-MAGMA.R
+Rscript 08_Figure-EWCE.R
 Rscript 09_DEAndClusterGVis.R
