@@ -1,0 +1,11 @@
+library(Matrix)
+library(Seurat)
+library(tidyverse)
+exp <- readRDS("snRNA-seq_raw_countmatrices.RDS")
+Batiuk2022 <- CreateSeuratObject(counts = exp, , project = "Batiuk2022")
+barcode <- tibble(barcode = Cells(Batiuk2022), donorid = Batiuk2022@meta.data$orig.ident)
+meta <- read_tsv("sampleinfo.txt") %>% left_join(barcode, by = "donorid") %>% select(barcode, donorid, sex, age)
+Batiuk2022 <- subset(Batiuk2022, subset = (orig.ident %in% meta$donorid))
+meta <- meta[match(Cells(Batiuk2022), meta$barcode), ]
+saveRDS(Batiuk2022, file = "Batiuk2022.rds")
+write.csv(meta, "meta_Batiuk2022.csv")

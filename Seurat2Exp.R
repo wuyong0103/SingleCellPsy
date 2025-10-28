@@ -1,0 +1,18 @@
+library(dplyr)
+library(Seurat)
+library(optparse)
+op_list <- list(
+        make_option(c("-c", "--celltype"), type = "character", default = NULL, action = "store", help = "cell type", metavar="rds")
+)
+parser <- OptionParser(option_list = op_list)
+opt = parse_args(parser)
+
+data <- readRDS("/home/lilab/liming/wuyong/project/scRNA/integrate/downsample500/downsample500_sublineage.rds")
+sst <- subset(data, sub_lineage == opt$celltype)
+sst_mtx <- as.matrix(sst@assays$RNA@layers$counts)
+colnames(sst_mtx) <- colnames(sst)
+rownames(sst_mtx) <- rownames(sst)
+seurat_rds <- paste0(opt$celltype, "_seurat.rds")
+saveRDS(sst, seurat_rds)
+output <- paste0(opt$celltype, "_mtx.csv")
+write.csv(t(sst_mtx), file = output)
