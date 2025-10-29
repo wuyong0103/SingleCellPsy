@@ -26,7 +26,7 @@ We employed the Expression Weighted Cell Type Enrichment ([EWCE](https://github.
 3. WES data of BD was downloaded from [Bipolar Exome (BipEx) sequencing project](https://bipex.broadinstitute.org/).
 4. Preprocess GWAS data using [LDSC](https://github.com/bulik/ldsc) and [MAGMA](https://cncr.nl/research/magma/).
 
-### LDSC and MAGMA analysis
+## LDSC and MAGMA analysis
 We conducted the LDSC and MAGMA analysis according to the publication of [Bryois et al., 2020, Nat Genet.](https://github.com/jbryois/scRNA_disease/tree/master).
 1. Please refer to `00_Process.sh` for more running details.
 
