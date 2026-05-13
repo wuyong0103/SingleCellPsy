@@ -13,10 +13,6 @@ We downloaded the snRNA-seq data from 22 published studies. For more details, pl
 Since the statistical power of these analyses depends on the accuracy of gene expression estimates, and cell types with fewer cells typically have less reliable average expression values, we applied a downsampling strategy to ensure comparable cell numbers across types.
 1. Downsample the snRNA-seq data using script `04_Downsample.R`
 
-## Calculate cellular specificity score
-Expression specificity for each gene was calculated as the ratio of its expression in a given cell type to the sum of its expression across all cell types, yielding a score between 0 and 1, where 1 indicates complete specificity and 0 indicates no expression in that cell type.
-1. Calculate expression specificity using script `04_Downsample.R` (Integrated in downsample script).
-
 ## Prepare the GWAS data and WES data
 1. GWAS data of SCZ and BD was downloaded from [Psychiatric Genomic Consortium](https://pgc.unc.edu).
 2. WES data of SCZ was downloaded from [Schizophrenia Exome Sequencing Meta-analysis (SCHEMA) consortium](https://schema.broadinstitute.org/).
@@ -27,13 +23,13 @@ Expression specificity for each gene was calculated as the ratio of its expressi
 We conducted the LDSC and MAGMA analysis according to the publication of [Bryois et al., 2020, Nat Genet.](https://github.com/jbryois/scRNA_disease/tree/master).
 1. Please refer to `00_Process.sh` for more running details.
 
-## Seismic analysis
-Refer the tutorial of [Seismic](https://ylaboratory.github.io/seismic/articles/seismicGWAS.html)
-1. Conduct Seismic analysis using script `Seismic.R`
-
 ## EWCE analysis
 Refer the tutorial of [EWCE](https://nathanskene.github.io/EWCE/articles/EWCE.html)
-1. Conduct EWCE analysis using script `EWCE.R`
+1. Conduct EWCE analysis using script `05_EWCE.R`
+2. 
+## Seismic analysis
+Refer the tutorial of [Seismic](https://ylaboratory.github.io/seismic/articles/seismicGWAS.html)
+1. Conduct Seismic analysis using script `06_Seismic.R`
 
 ## Visualization
 1. Visualize the results using R script under `plot` directory.
