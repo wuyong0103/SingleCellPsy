@@ -99,14 +99,14 @@ cut -f 1,2 MAGMA_Subtype.txt | sed 's/\-/\t/' | sed '1d' | perl -ane 'BEGIN{prin
 #let's do EWCE
 cd /home/lilab/wuyong/project/scRNA/MP-R1
 mkdir EWCE-result
-Rscript EWCE.R
+Rscript 05_EWCE.R
 
 #=====================================================================================================
 #Seismic analysis
 cd /home/lilab/wuyong/project/scRNA/MP-R1
 mkdir Seismic-result
-Rscript Seismic.R /home/lilab/wuyong/project/scRNA/MP-R1/downsampleMin/downsampleMin_lineage.rds lineage None All_lineage
-Rscript Seismic.R /home/lilab/wuyong/project/scRNA/MP-R1/downsampleMin/downsampleMin_sublineage.rds sub_lineage None All_sublineage
+Rscript 06_Seismic.R /home/lilab/wuyong/project/scRNA/MP-R1/downsampleMin/downsampleMin_lineage.rds lineage None All_lineage
+Rscript 06_Seismic.R /home/lilab/wuyong/project/scRNA/MP-R1/downsampleMin/downsampleMin_sublineage.rds sub_lineage None All_sublineage
 cd Seismic-result
 awk -vOFS="\t" 'BEGIN{print "cell_type\tpvalue\tTrait\tmethod"}{print $1,$2,$4,"Seismic"}' All_lineage_Asso.tsv | sed '2d' >Seismic-type.txt
 awk -vOFS="\t" 'BEGIN{print "cell_type\tpvalue\tTrait\tmethod"}{print $1,$2,$4,"Seismic"}' All_sublineage_Asso.tsv | sed '2d' >Seismic-subtype.txt
