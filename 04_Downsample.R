@@ -18,41 +18,97 @@ seurat_sub <- subset(data, sub_lineage != "Unknown")
 rm(data)
 gc()
 
-#=========Regardless age stage, downsample to minimum cell type================
+#=========不分age downsample到最小细胞类型数目======================================
+# 确保 Idents 是你要平衡的分组（例如 celltype）
 Idents(seurat_sub) <- seurat_sub$sub_lineage
+
+# 目标数量：取各类群的最小值，或自己指定一个安全阈值
 tab <- table(Idents(seurat_sub))
-n_target <- min(tab)
+n_target <- min(tab)  # 或者指定，例如 n_target <- 500
+
+# 使用 Seurat::subset 的 downsample 参数（按当前 Idents 逐类群抽样）
 seurat_sub_Min <- subset(seurat_sub, downsample = n_target)
+
+# 检查平衡结果
 table(Idents(seurat_sub_Min))
 write.table(seurat_sub_Min@meta.data, "./downsampleMin/downsampleMin_sublineage.txt")
 saveRDS(seurat_sub_Min, "./downsampleMin/downsampleMin_sublineage.rds")
 
+
+# 确保 Idents 是你要平衡的分组（例如 celltype）
 Idents(seurat_obj) <- seurat_obj$lineage
+
+# 目标数量：取各类群的最小值，或自己指定一个安全阈值
 tab <- table(Idents(seurat_obj))
-n_target <- min(tab)
+n_target <- min(tab)  # 或者指定，例如 n_target <- 500
+
+# 使用 Seurat::subset 的 downsample 参数（按当前 Idents 逐类群抽样）
 seurat_obj_Min <- subset(seurat_obj, downsample = n_target)
+
+# 检查平衡结果
 table(Idents(seurat_obj_Min))
 write.table(seurat_obj_Min@meta.data, "./downsampleMin/downsampleMin_lineage.txt")
 saveRDS(seurat_obj_Min, "./downsampleMin/downsampleMin_lineage.rds")
 
 
-#========= downsample to 500 cells ======================================
+#=========按age downsample到500个细胞======================================
+# 先筛选：只保留细胞数 >=50 的分组
 meta_filtered_sub <- seurat_sub@meta.data %>%
     group_by(stage, sub_lineage) %>%
-    filter(n() >= 500)
+    filter(n() >= 50)
+	
 
-max_attempts <- 1000
+# 定义一个函数来生成 keep_cells
+generate_keep_cells_sub <- function(meta_filtered, k) {
+    meta_filtered %>%
+        group_by(stage, sub_lineage) %>%
+        summarise(
+            cell = list(
+                if (n() >= k) {
+                    sample(cell, size = k)   # ≥k 抽 k 个
+                } else {
+                    cell                     # 50–k 全部保留
+                }
+            ),
+            .groups = "drop"
+        ) %>%
+        pull(cell) %>%
+        unlist(use.names = FALSE)
+}
+
+generate_keep_cells_lineage <- function(meta_filtered, k) {
+    meta_filtered %>%
+        group_by(stage, lineage) %>%
+        summarise(
+            cell = list(
+                if (n() >= k) {
+                    sample(cell, size = k)   # ≥k 抽 k 个
+                } else {
+                    cell                     # 50–k 全部保留
+                }
+            ),
+            .groups = "drop"
+        ) %>%
+        pull(cell) %>%
+        unlist(use.names = FALSE)
+}
+
+# 在 meta 数据上进行下采样和 donorid 检查
+max_attempts <- 1000  # 最大尝试次数，避免无限循环
 attempt <- 1
 keep_cells <- generate_keep_cells_sub(meta_filtered_sub, 500)
 while (attempt <= max_attempts) {
+    # 检查 keep_cells 中每个 donorid 的细胞数
     donor_counts <- table(meta_filtered_sub$donorid[meta_filtered_sub$cell %in% keep_cells])
     single_donors <- names(donor_counts[donor_counts == 1])
     
     if (length(single_donors) == 0) {
-		break
-    } else {
-		keep_cells <- generate_keep_cells_sub(meta_filtered_sub, 500)
-		attempt <- attempt + 1
+        message("下采样成功：所有 donorid 至少有 2 个细胞（sub_lineage）。")
+        break
+        } else {
+        message(paste("尝试", attempt, ": 以下 donorid 只剩 1 个细胞：", paste(single_donors, collapse = ", "), "。重新下采样..."))
+        keep_cells <- generate_keep_cells_sub(meta_filtered_sub, 500)
+        attempt <- attempt + 1
     }
 }
 
@@ -60,9 +116,12 @@ if (attempt > max_attempts) {
     warning("达到最大尝试次数，仍有 donorid 只剩 1 个细胞。继续使用当前下采样结果（sub_lineage）。")
 }
 
+# 构建下采样后的 Seurat 对象
 seurat_sub_500 <- subset(seurat_sub, cells = keep_cells)
 seurat_sub_500 <- JoinLayers(seurat_sub_500)
 
+
+# 检查结果
 saveRDS(seurat_sub_500, "./downsample500/downsample500_sublineage.rds")
 with(seurat_sub_500@meta.data, table(stage, sub_lineage))
 write.table(seurat_sub_500@meta.data, "./downsample500/downsample500_sublineage.txt")
@@ -71,17 +130,21 @@ write.table(seurat_sub_500@meta.data, "./downsample500/downsample500_sublineage.
 #lineage downsample
 meta_filtered_lineage <- seurat_obj@meta.data %>%
     group_by(stage, lineage) %>%
-    filter(n() >= 500)
+    filter(n() >= 50)
 
+# 在 meta 数据上进行下采样和 donorid 检查
 attempt <- 1
 keep_cells <- generate_keep_cells_lineage(meta_filtered_lineage, 500)
 while (attempt <= max_attempts) {
+    # 检查 keep_cells 中每个 donorid 的细胞数
     donor_counts <- table(meta_filtered_lineage$donorid[meta_filtered_lineage$cell %in% keep_cells])
     single_donors <- names(donor_counts[donor_counts == 1])
     
     if (length(single_donors) == 0) {
+        message("下采样成功：所有 donorid 至少有 2 个细胞（lineage）。")
         break
-    } else {
+        } else {
+        message(paste("尝试", attempt, ": 以下 donorid 只剩 1 个细胞：", paste(single_donors, collapse = ", "), "。重新下采样..."))
         keep_cells <- generate_keep_cells_lineage(meta_filtered_lineage, 500)
         attempt <- attempt + 1
     }
@@ -91,9 +154,12 @@ if (attempt > max_attempts) {
       warning("达到最大尝试次数，仍有 donorid 只剩 1 个细胞。继续使用当前下采样结果（lineage）。")
 }
 
+# 构建下采样后的 Seurat 对象
 seurat_obj_500 <- subset(seurat_obj, cells = keep_cells)
 seurat_obj_500 <- JoinLayers(seurat_obj_500)
 
+
+# 检查结果
 saveRDS(seurat_obj_500, "./downsample500/downsample500_lineage.rds")
 with(seurat_obj_500@meta.data, table(stage, lineage))
 write.table(seurat_obj_500@meta.data, "./downsample500/downsample500_lineage.txt")
@@ -226,8 +292,6 @@ lineage_results <- calculate_expression_and_specificity(seurat_obj_Min, "lineage
 # 2. sub_lineage level
 sublineage_results <- calculate_expression_and_specificity(seurat_sub_Min, "sub_lineage", "sub_lineage", "downsampleMin")
 
-
-# 4. group by age
-#seurat_obj$age <- meta$stage
+# 3. developmental process
 age_lineage_results <- calculate_expression_and_specificity(seurat_obj_500, c("stage", "lineage"), "stage_lineage", "downsample500")
 age_sublineage_results <- calculate_expression_and_specificity(seurat_sub_500, c("stage", "sub_lineage"), "stage_sub_lineage", "downsample500")
