@@ -26,7 +26,7 @@ We conducted the LDSC and MAGMA analysis according to the publication of [Bryois
 ## EWCE analysis
 Refer the tutorial of [EWCE](https://nathanskene.github.io/EWCE/articles/EWCE.html)
 1. Conduct EWCE analysis using script `05_EWCE.R`
-2. 
+
 ## Seismic analysis
 Refer the tutorial of [Seismic](https://ylaboratory.github.io/seismic/articles/seismicGWAS.html)
 1. Conduct Seismic analysis using script `06_Seismic.R`
